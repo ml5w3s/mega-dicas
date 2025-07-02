@@ -1,12 +1,18 @@
 import random
-import csv
+from utils import ler_combinacoes_arquivo
+from validadores import possui_tres_ou_mais_consecutivos, possui_numeros_repetidos
 
+# Parâmetros estatísticos
 pesos = {10: 5, 53: 5, 5: 5, 34: 5, 42: 5, 37: 5, 4: 5, 23: 5, 51: 5}
-faixa_preferida = set(range(30, 51))
+faixa_preferida = set(range(10, 50))
 preferencia_pares = 0.1
 
 
 def gerar_numero():
+    """
+    Gera um número entre 1 e 60 baseado em pesos personalizados,
+    preferência por faixa e preferência por números pares.
+    """
     numeros = list(range(1, 61))
     probabilidades = []
 
@@ -27,28 +33,40 @@ def gerar_numero():
     return random.choices(numeros, weights=probabilidades, k=1)[0]
 
 
-def ler_combinacoes_arquivo(arquivo_csv):
-    combinacoes = []
-    with open(arquivo_csv, 'r') as arquivo:
-        leitor_csv = csv.reader(arquivo)
-        for linha in leitor_csv:
-            numeros = [numero.strip() for numero in ' '.join(linha).split()]
-            combinacoes.append(tuple(map(int, numeros)))
-    return combinacoes
-
-
 def gerar_combinacao_aleatoria():
-    return tuple(sorted(gerar_numero() for _ in range(6)))
+    """
+    Gera uma combinação aleatória de 6 números com ordenação.
+    """
+    combinacao = []
+    while len(combinacao) < 6:
+        numero = gerar_numero()
+        if numero not in combinacao:
+            combinacao.append(numero)
+    return tuple(sorted(combinacao))
 
 
 def encontrar_combinacao_unica(arquivo_csv):
+    """
+    Encontra uma combinação única que:
+    - Não está no arquivo
+    - Não possui 3+ números consecutivos
+    - Não possui números repetidos
+    """
     combinacoes_existentes = ler_combinacoes_arquivo(arquivo_csv)
+
     while True:
         nova_combinacao = gerar_combinacao_aleatoria()
-        if nova_combinacao not in combinacoes_existentes:
+
+        if (
+            nova_combinacao not in combinacoes_existentes and
+            not possui_tres_ou_mais_consecutivos(nova_combinacao) and
+            not possui_numeros_repetidos(nova_combinacao)
+        ):
             return nova_combinacao
 
 
-arquivo_csv = 'resultados_filtrados.csv'
-combinacao_unica = encontrar_combinacao_unica(arquivo_csv)
-print("Combinação única gerada:", combinacao_unica)
+# Execução principal
+if __name__ == '__main__':
+    arquivo_csv = 'resultados_filtrados.csv'
+    combinacao_unica = encontrar_combinacao_unica(arquivo_csv)
+    print("Combinação única gerada:", combinacao_unica)

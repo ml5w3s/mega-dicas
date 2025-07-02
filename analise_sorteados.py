@@ -1,6 +1,6 @@
 import csv
 from collections import Counter
-10 - 53 - 5 - 34 - 42 - 37
+
 def ler_numeros_arquivo(arquivo_csv):
     """Lê o arquivo CSV e retorna uma lista de todos os números encontrados."""
     numeros = []
